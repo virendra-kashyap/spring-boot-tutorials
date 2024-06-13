@@ -14,7 +14,7 @@ public class PersonItemReader {
 	@Bean
 	public FlatFileItemReader<Person> reader() {
 		return new FlatFileItemReaderBuilder<Person>().name("personItemReader")
-				.resource(new ClassPathResource("sample-data.csv")).delimited().names("firstName", "lastName")
+				.resource(new ClassPathResource("sample-data.csv")).delimited().names("firstName", "lastName", "emailId")
 				.targetType(Person.class).build();
 	}
 
