@@ -1,0 +1,5 @@
+Start Redis on local using cmd
+----> redis-server
+
+Verify if your Redis server is running
+----> redis-cli
