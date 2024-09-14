@@ -85,6 +85,6 @@ class UserApiTest {
 	void whenValidDelete() {
 		final ResponseEntity<Object> reply = restTemp.exchange(loadUri("/users/1"), HttpMethod.DELETE, HttpEntity.EMPTY,
 				Object.class);
-		Assertions.assertEquals(HttpStatus.CREATED.value(), reply.getStatusCode().value());
+		Assertions.assertEquals(HttpStatus.NO_CONTENT.value(), reply.getStatusCode().value());
 	}
 }
