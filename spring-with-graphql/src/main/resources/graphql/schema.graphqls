@@ -1,0 +1,10 @@
+type Query{
+allBooks:[Book]
+getBook:(id:Long):Book
+}
+
+type Book {
+id: ID!
+title: String
+author: String
+}
