@@ -1,6 +1,6 @@
 spring.application.name=social-login-with-spring
 
-spring.security.oauth2.client.registration.facebook.client-id=your-facebook-client-id
-spring.security.oauth2.client.registration.facebook.client-secret=your-facebook-client-secret
+spring.security.oauth2.client.registration.facebook.client-id=9272042712814132
+spring.security.oauth2.client.registration.facebook.client-secret=ff4913a1c31d18448e6bbe7cd564bb69
 spring.security.oauth2.client.registration.facebook.scope=email
 spring.security.oauth2.client.registration.facebook.redirect-uri=http://localhost:8080/login/oauth2/code/facebook
