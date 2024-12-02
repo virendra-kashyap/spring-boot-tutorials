@@ -2,11 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<title>Login
-		<!DOCTYPE html>
-		<html xmlns:th="http://www.thymeleaf.org">
-
-		<head>
 			<title>Login</title>
 		</head>
 
@@ -16,20 +11,7 @@
 		Invalid username or password.
 	</div>
 	<div>
-		<a href="/login/oauth2/authorization/facebook" class="btn btn-primary">Login with Facebook</a>
-	</div>
-</body>
-
-</html>
-</title>
-</head>
-
-<body>
-	<h2>Login with Social Accounts</h2>
-	<div th:if="${loginError}" class="alert alert-danger">
-		Invalid username or password.
-	</div>
-	<div>
+		<a href="/login/oauth2/authorization/google" class="btn btn-primary">Login with Google</a>
 		<a href="/login/oauth2/authorization/facebook" class="btn btn-primary">Login with Facebook</a>
 	</div>
 </body>
