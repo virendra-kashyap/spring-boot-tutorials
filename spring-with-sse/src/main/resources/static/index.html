@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring SSE Demo</title>
+</head>
+<body>
+<h1>Server-Sent Events (SSE) with Spring</h1>
+<div id="events"></div>
+
+<script>
+    function connect() {
+        const eventSource = new EventSource("/sse");
+
+        eventSource.onmessage = (event) => {
+            const div = document.createElement("div");
+            div.textContent = `Event received: ${event.data}`;
+            document.getElementById("events").appendChild(div);
+        };
+
+        eventSource.onerror = () => {
+            console.error("Connection lost. Retrying...");
+            eventSource.close();
+            setTimeout(connect, 3000); // Attempt to reconnect after 3 seconds
+        };
+    }
+
+    connect();
+</script>
+</body>
+</html>
