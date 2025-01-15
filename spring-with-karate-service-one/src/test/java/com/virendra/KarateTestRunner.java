@@ -6,7 +6,7 @@ public class KarateTestRunner {
 
     @Karate.Test
     Karate testService() {
-        return Karate.run("classpath:service-test.feature").relativeTo(getClass());
+        return Karate.run("classpath:mock-service.feature").relativeTo(getClass());
     }
 
 }
