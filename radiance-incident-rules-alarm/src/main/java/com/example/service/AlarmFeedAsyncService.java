@@ -5,9 +5,9 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -23,13 +23,11 @@ import reactor.util.retry.Retry;
 @Service
 public class AlarmFeedAsyncService {
 
-	private Map<String, AlarmChangeDetails> deviceApiCalledMap = new HashMap<>();
+	private final Map<String, AlarmChangeDetails> deviceApiCalledMap = new ConcurrentHashMap<>();
 	private final WebClient webClient = WebClient.builder().build();
 
 	public void processData(Alarm alarm) {
-
 		changeManagement(alarm.getDeviceName(), alarm.getSiteId(), alarm.getId());
-
 	}
 
 	private void changeManagement(String deviceId, String siteId, Long alarmId) {
