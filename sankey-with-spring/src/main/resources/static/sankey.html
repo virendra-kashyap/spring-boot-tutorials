@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sankey Diagram</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load("current", { packages: ["sankey"] });
+        google.charts.setOnLoadCallback(fetchData);
+
+        function fetchData() {
+            fetch("http://localhost:8080/api/sankey-data")  // Backend API call
+                .then(response => response.json())
+                .then(data => drawChart(data))
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        function drawChart(apiData) {
+            var data = new google.visualization.DataTable();
+            data.addColumn("string", "From");
+            data.addColumn("string", "To");
+            data.addColumn("number", "Weight");
+
+            // Convert API response to chart data format
+            var chartData = apiData.links.map(link => [
+                apiData.nodes[link.source].name,
+                apiData.nodes[link.target].name,
+                link.value
+            ]);
+
+            data.addRows(chartData);
+
+            var chart = new google.visualization.Sankey(document.getElementById("sankey_chart"));
+            chart.draw(data);
+        }
+    </script>
+</head>
+<body>
+<h2>Sankey Diagram</h2>
+<div id="sankey_chart" style="width: 600px; height: 400px;"></div>
+</body>
+</html>
