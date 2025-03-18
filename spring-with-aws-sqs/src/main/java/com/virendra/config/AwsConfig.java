@@ -19,8 +19,6 @@ public class AwsConfig {
 
     @Bean
     public SqsClient sqsClient() {
-        System.out.println("accessKey # " + accessKey);
-        System.out.println("secretKey # " + secretKey);
         return SqsClient.builder().region(Region.AP_SOUTH_1).credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
                 accessKey, secretKey
         ))).build();

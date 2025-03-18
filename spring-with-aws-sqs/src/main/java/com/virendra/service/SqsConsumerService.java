@@ -38,9 +38,31 @@ public class SqsConsumerService {
         List<Message> messages = sqsClient.receiveMessage(receiveRequest).messages();
 
         for (Message msg : messages) {
+            System.out.println("msg # " + msg.body());
+            if (shouldDelayMessage(msg)) {
+                continue; // Message delete nahi hoga, wapas process hoga
+            }
             processMessage(msg);
             deleteMessage(msg);
         }
+    }
+
+    private boolean shouldDelayMessage(Message msg) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(msg.body());
+            String name = jsonNode.get("name").asText();
+
+            if ("virendra kashyap".equalsIgnoreCase(name)) {
+                System.out.println("Delaying message processing for 30 seconds: " + name);
+                Thread.sleep(5000); // 5 seconds delay
+                System.out.println("Message not deleted, it will be reprocessed.");
+                return true; // Message delete nahi karna
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private void processMessage(Message msg) {
