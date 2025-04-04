@@ -1,5 +1,6 @@
 package com.redis.spring.ctl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,12 +13,17 @@ import com.redis.spring.service.UserService;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserCtl {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserCtl(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping("/data")
+    public List<User> getApiData() {
+        return userService.getCachedApiData();
     }
 
     @GetMapping("/long/{id}")

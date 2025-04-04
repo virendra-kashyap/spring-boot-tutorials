@@ -1,6 +1,7 @@
 package com.redis.spring.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -8,11 +9,32 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.redis.spring.dto.User;
 
 @Service
 public class UserService {
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    private static final String API_URL = "http://localhost:8182/api/default/get";
+
+    @Cacheable(value = "externalApiCache", key = "'apiData'")
+    public List<User> getCachedApiData() {
+        return null; // Redis will return the cached response if available
+    }
+
+    @CachePut(value = "externalApiCache", key = "'apiData'")
+    public List<User> fetchAndCacheApiData() {
+        List<User> apiResponse = restTemplate.getForObject(API_URL, List.class);
+        return apiResponse;
+    }
+
+    @Scheduled(fixedRate = 120000) // Every 2 minutes
+    public void updateCache() {
+        fetchAndCacheApiData();
+    }
 
     private final Map<String, User> database = new HashMap<>();
 
