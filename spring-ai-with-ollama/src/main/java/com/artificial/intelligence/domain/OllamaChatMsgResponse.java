@@ -1,10 +1,10 @@
 package com.artificial.intelligence.domain;
 
 public class OllamaChatMsgResponse {
-
     private String message;
 
-    public OllamaChatMsgResponse() {}
+    public OllamaChatMsgResponse() {
+    }
 
     public OllamaChatMsgResponse(String message) {
         this.message = message;

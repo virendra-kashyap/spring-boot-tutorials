@@ -10,6 +10,4 @@ public interface OllamaChatService {
 
     public OllamaChatMsgResponse chatWithImage(
             String inputMessage, MultipartFile imageFile);
-
-    public Flux<String> chatWithStream(String inputMessage);
 }

@@ -30,9 +30,4 @@ public class OllamaChatController {
 		return ollamaChatService.chatWithImage(inputMessage, imageFile);
 	}
 
-	@GetMapping("/chat-with-stream")
-	public Flux<String> chatWithStream(@RequestParam("inputMessage") String inputMessage) {
-		return ollamaChatService.chatWithStream(inputMessage);
-	}
-
 }
