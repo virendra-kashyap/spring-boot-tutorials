@@ -4,11 +4,16 @@ import com.artificial.intelligence.domain.OllamaChatMsgResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class OllamaChatServiceImplTest {
 
@@ -50,5 +55,46 @@ public class OllamaChatServiceImplTest {
         OllamaChatMsgResponse response = chatService.chat(inputMessage);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedResponse, response.getMessage());
+    }
+
+    @Test
+    void testChatWithImageReturnsExpectedResponse() throws Exception {
+        String inputMessage = "Describe this image.";
+        String expectedResponse = "It looks like a sunset over mountains.";
+
+        MultipartFile mockImageFile = Mockito.mock(MultipartFile.class);
+        InputStream mockStream = new ByteArrayInputStream("dummy image".getBytes());
+        Mockito.when(mockImageFile.getInputStream()).thenReturn(mockStream);
+
+        ChatClient.ChatClientRequest chatClientRequest = Mockito.mock(ChatClient.ChatClientRequest.class);
+        ChatClient.ChatClientRequest.CallResponseSpec callResponseSpec = Mockito.mock(ChatClient.ChatClientRequest.CallResponseSpec.class);
+
+        Mockito.when(chatClient.prompt()).thenReturn(chatClientRequest);
+
+        Mockito.doAnswer(invocation -> {
+            ChatClient.PromptSpec<?> promptSpec = invocation.getArgument(0);
+            promptSpec.text(inputMessage);
+            return chatClientRequest;
+        }).when(chatClientRequest).user(ArgumentMatchers.any());
+
+        Mockito.when(chatClientRequest.call()).thenReturn(callResponseSpec);
+        Mockito.when(callResponseSpec.content()).thenReturn(expectedResponse);
+
+        OllamaChatMsgResponse response = chatService.chatWithImage(inputMessage, mockImageFile);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(expectedResponse, response.getMessage());
+    }
+
+    @Test
+    void testChatWithImageReturnsFallbackOnException() throws Exception {
+        MultipartFile mockImageFile = Mockito.mock(MultipartFile.class);
+        Mockito.when(mockImageFile.getInputStream()).thenThrow(new RuntimeException("Stream error"));
+
+        String fallbackMessage = "Service is currently unavailable";
+        OllamaChatMsgResponse response = chatService.chatWithImage("Test", mockImageFile);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(fallbackMessage, response.getMessage());
     }
 }
