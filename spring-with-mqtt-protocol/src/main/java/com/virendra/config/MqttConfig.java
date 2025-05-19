@@ -1,52 +1,79 @@
 package com.virendra.config;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.core.MessageProducer;
+import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
+import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
+import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
+import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
+import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHandler;
 
 @Configuration
 public class MqttConfig {
 
-    private static final String BROKER_URL = "tcp://localhost:1883"; // Replace with your Mosquitto broker URL
-    private static final String CLIENT_ID = "spring-boot-client";
+    @Value("${mqtt.url}")
+    private String brokerUrl;
 
-//    @Bean
-//    public MqttClient mqttClient() throws Exception {
-//        MqttClient client = new MqttClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
-//
-//        MqttConnectOptions connOpts = new MqttConnectOptions();
-//        connOpts.setCleanSession(true);
-//
-//        client.connect(connOpts);
-//        return client;
-//    }
+    @Value("${mqtt.clientId}")
+    private String clientId;
+
+    @Value("${mqtt.topic}")
+    private String topic;
 
     @Bean
-    public MqttClient mqttClient() throws MqttException {
-        return new MqttClient(BROKER_URL, MqttClient.generateClientId(), new MemoryPersistence());
-    }
-
-    @Bean
-    public MqttConnectOptions mqttConnectOptions() {
+    public MqttPahoClientFactory mqttClientFactory() {
+        DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
+        options.setServerURIs(new String[]{brokerUrl});
         options.setCleanSession(true);
-        return options;
+        factory.setConnectionOptions(options);
+        return factory;
     }
 
-//    @Bean
-//    public MqttClient mqttClient() throws MqttException {
-//        MqttClient client = new MqttClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
-//
-//        MqttConnectOptions options = new MqttConnectOptions();
-//        options.setCleanSession(true);
-//        options.setAutomaticReconnect(true);
-//        options.setConnectionTimeout(10);
-//
-//        client.connect(options); // 👈 This line throws "Connection lost" if Mosquitto isn't reachable
-//        return client;
-//    }
+    @Bean
+    public MessageChannel mqttInputChannel() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageProducer inbound() {
+        MqttPahoMessageDrivenChannelAdapter adapter =
+                new MqttPahoMessageDrivenChannelAdapter(clientId + "-inbound", mqttClientFactory(), topic);
+        adapter.setCompletionTimeout(5000);
+        adapter.setConverter(new DefaultPahoMessageConverter());
+        adapter.setQos(1);
+        adapter.setOutputChannel(mqttInputChannel());
+        return adapter;
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = "mqttInputChannel")
+    public MessageHandler handler() {
+        return message -> {
+            System.out.println("Received MQTT message: " + message.getPayload());
+        };
+    }
+
+    @Bean
+    @ServiceActivator(inputChannel = "mqttOutboundChannel")
+    public MessageHandler mqttOutbound() {
+        MqttPahoMessageHandler messageHandler =
+                new MqttPahoMessageHandler(clientId + "-outbound", mqttClientFactory());
+        messageHandler.setAsync(true);
+        messageHandler.setDefaultTopic(topic);
+        return messageHandler;
+    }
+
+    @Bean
+    public MessageChannel mqttOutboundChannel() {
+        return new DirectChannel();
+    }
 
 }

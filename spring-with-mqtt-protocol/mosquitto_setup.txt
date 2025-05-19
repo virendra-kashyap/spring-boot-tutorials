@@ -1,0 +1,8 @@
+run mosquitto broker using CMD
+mosquitto.exe -v
+
+subscribe topic using CMD
+mosquitto_sub.exe -t testTopic
+
+publish topic CMD
+mosquitto_pub.exe -t testTopic -m "Hello Virendra"
