@@ -1,6 +1,8 @@
 package com.virendra.config;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,8 @@ import org.springframework.messaging.MessageHandler;
 
 @Configuration
 public class MqttConfig {
+
+    Logger logger = LoggerFactory.getLogger(MqttConfig.class);
 
     @Value("${mqtt.url}")
     private String brokerUrl;
@@ -57,7 +61,8 @@ public class MqttConfig {
     @ServiceActivator(inputChannel = "mqttInputChannel")
     public MessageHandler handler() {
         return message -> {
-            System.out.println("Received MQTT message: " + message.getPayload());
+            logger.info("Received MQTT message: ", message.getPayload());
+            logger.info("From topic: ", message.getHeaders().get("mqtt_receivedTopic"));
         };
     }
 
