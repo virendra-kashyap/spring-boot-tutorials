@@ -45,15 +45,11 @@ public class AuthenticationService {
 		user.setLastName(request.getLastName());
 		user.setUsername(request.getUsername());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
-
 		user.setRole(request.getRole());
-
 		user = repository.save(user);
 
 		String jwt = jwtService.generateToken(user);
-
 		saveUserToken(jwt, user);
-
 		return new AuthenticationResponse(jwt, "User registration was successful");
 
 	}
